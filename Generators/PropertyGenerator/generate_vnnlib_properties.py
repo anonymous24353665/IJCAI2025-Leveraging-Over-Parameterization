@@ -81,12 +81,6 @@ def parse_arguments():
         description="Generate VNNLIB local robustness properties"
     )
     parser.add_argument(
-        "--property_folder",
-        type=str,
-        default="./properties/FMNIST/0.03",
-        help="Folder to save .vnnlib files"
-    )
-    parser.add_argument(
         "--test_samples",
         type=int,
         default=100,
@@ -102,7 +96,7 @@ def parse_arguments():
         "--dataset",
         type=str,
         default="FMNIST",
-        choices=["MNIST", "FMNIST", "CIFAR10"],
+        choices=["MNIST", "FMNIST"],
         help="Dataset to use"
     )
     return parser.parse_args()
@@ -115,11 +109,9 @@ def load_dataset(dataset_name):
     transform = transforms.ToTensor()
 
     if dataset_name == "MNIST":
-        return datasets.MNIST("./data", train=False, download=True, transform=transform), 10
+        return datasets.MNIST("../../datasets", train=False, download=True, transform=transform), 10
     if dataset_name == "FMNIST":
-        return datasets.FashionMNIST("./data", train=False, download=True, transform=transform), 10
-    if dataset_name == "CIFAR10":
-        return datasets.CIFAR10("./data", train=False, download=True, transform=transform), 10
+        return datasets.FashionMNIST("../../datasets", train=False, download=True, transform=transform), 10
 
     raise ValueError(f"Unsupported dataset: {dataset_name}")
 
@@ -135,7 +127,9 @@ if __name__ == "__main__":
     if args.test_samples <= 0:
         raise ValueError(f"test_samples must be positive, got {args.test_samples}")
 
-    os.makedirs(args.property_folder, exist_ok=True)
+    property_folder = os.path.join("results", args.dataset)
+
+    os.makedirs(property_folder, exist_ok=True)
 
     test_dataset, num_classes = load_dataset(args.dataset)
 
@@ -147,7 +141,6 @@ if __name__ == "__main__":
     print(f"Generating {args.test_samples} properties")
     print(f"Dataset: {args.dataset}")
     print(f"Epsilon: {args.epsilon}")
-    print(f"Output folder: {args.property_folder}")
 
     success_count = 0
 
@@ -160,7 +153,7 @@ if __name__ == "__main__":
             input_np = np.transpose(input_np, (1, 2, 0))
 
         property_path = os.path.join(
-            args.property_folder,
+            property_folder,
             f"sample_{idx:04d}_label_{label}_eps_{args.epsilon:.4f}.vnnlib"
         )
 
@@ -182,5 +175,5 @@ if __name__ == "__main__":
     print(
         f"\nGeneration complete: "
         f"{success_count}/{args.test_samples} properties saved to "
-        f"{args.property_folder}"
+        f"{property_folder}"
     )

@@ -23,8 +23,8 @@ from Generators.ArchitecturesGenerator.utils.logger import  setup_logger
 import logging
 import time
 
-from Generators.ArchitecturesGenerator.one_rs_param.hyper_params_search import BinaryHyperParamsResearch
-from Generators.ArchitecturesGenerator.one_rs_param.regularized_trainer import ModelTrainingManager
+from Generators.ArchitecturesGenerator.src.hyper_params_search import BinaryHyperParamsResearch
+from Generators.ArchitecturesGenerator.src.regularized_trainer import ModelTrainingManager
 from Generators.ArchitecturesGenerator.utils.nn_models import CustomFCNN
 
 

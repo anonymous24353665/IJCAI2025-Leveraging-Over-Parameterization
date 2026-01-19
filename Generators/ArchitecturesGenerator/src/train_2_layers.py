@@ -5,14 +5,14 @@ import pstats
 from typing import Any, Tuple, List
 from torch import nn
 
-from Generators.ArchitecturesGenerator.one_rs_param.hyper_params_search import (
+from Generators.ArchitecturesGenerator.src.hyper_params_search import (
     BinaryHyperParamsResearch,
 )
 from Generators.ArchitecturesGenerator.utils.nn_models import CustomFCNN
-from Generators.ArchitecturesGenerator.one_rs_param.regularized_trainer import (
+from Generators.ArchitecturesGenerator.src.regularized_trainer import (
     ModelTrainingManager,
 )
-from Generators.ArchitecturesGenerator.one_rs_param.config import load_config
+from Generators.ArchitecturesGenerator.src.config import load_config
 from Generators.ArchitecturesGenerator.utils.rs_loss_regularizer import (
     calculate_rs_loss_regularizer_fc_2_layers,
 )

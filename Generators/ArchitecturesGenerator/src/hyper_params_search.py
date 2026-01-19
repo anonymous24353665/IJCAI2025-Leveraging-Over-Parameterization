@@ -6,7 +6,7 @@ from torch import save
 
 from Generators.ArchitecturesGenerator.utils.dataset import get_data_loader
 from Generators.ArchitecturesGenerator.utils.utils import load_yaml_config, write_results_on_csv, save_models
-from Generators.ArchitecturesGenerator.one_rs_param import BACKUP_FOLDER, RESULTS_FOLDER, device
+from Generators.ArchitecturesGenerator.src import BACKUP_FOLDER, RESULTS_FOLDER, device
 
 
 

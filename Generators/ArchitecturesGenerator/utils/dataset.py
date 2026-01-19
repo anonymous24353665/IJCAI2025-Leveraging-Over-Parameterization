@@ -1,4 +1,6 @@
 # Dataset loading and transformation
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import torch
@@ -8,24 +10,50 @@ from torchvision.transforms import transforms
 from torch.utils.data import DataLoader, Dataset
 import os
 
-DATASET_DIRECTORY = '../datasets'
+DATASET_DIRECTORY = '../../datasets'
 
 class CustomFeatureDataset(Dataset):
-    def __init__(self, csv_file, normalize=False):
+    def __init__(
+        self,
+        csv_file: str,
+        normalize: bool = False,
+        mode: str = "train",
+        min_vals: np.ndarray = None,
+        max_vals: np.ndarray = None,
+    ):
+        """
+        Args:
+            csv_file: path to CSV file
+            normalize: apply min-max normalization
+            mode: 'train' or 'test'
+            min_vals, max_vals: statistics computed on training set
+        """
         df = pd.read_csv(csv_file)
 
         X = df.iloc[:, :-1].values.astype(np.float32)
         y = df.iloc[:, -1].values.astype(np.int64)
 
         if normalize:
-            min_vals = X.min(axis=0)
-            max_vals = X.max(axis=0)
-            print("Normalized!")
+            if mode == "train":
+                self.min_vals = X.min(axis=0)
+                self.max_vals = X.max(axis=0)
+                print("Computed normalization statistics on TRAIN set")
 
-            denom = max_vals - min_vals
-            denom[denom == 0] = 1.0  # evita divisioni per zero
+            elif mode == "test":
+                if min_vals is None or max_vals is None:
+                    raise ValueError(
+                        "min_vals and max_vals must be provided for test dataset"
+                    )
+                self.min_vals = min_vals
+                self.max_vals = max_vals
 
-            X = (X - min_vals) / denom
+            else:
+                raise ValueError("mode must be either 'train' or 'test'")
+
+            denom = self.max_vals - self.min_vals
+            denom[denom == 0] = 1.0  # avoid division by zero
+
+            X = (X - self.min_vals) / denom
 
         self.X = torch.tensor(X, dtype=torch.float32)
         self.y = torch.tensor(y, dtype=torch.long)
@@ -87,27 +115,34 @@ def get_dataset(dataset_name, input_flattened=True):
         output_dim = 10
 
     elif dataset_name == 'CUSTOM_CIFAR10':
-        # Qui metti i file CSV salvati in precedenza
+        base_path = Path(__file__).resolve().parents[3]
+        # Percorsi dei CSV
+        train_csv = base_path / "datasets" / "CUSTOM_CIFAR10" / "custom_train.csv"
+        test_csv = base_path / "datasets" / "CUSTOM_CIFAR10" / "custom_test.csv"
 
-        # Percorso della cartella dove si trova lo script
-        base_path = os.path.dirname(os.path.abspath(__file__))
+        if not train_csv.exists() or not test_csv.exists():
+            raise FileNotFoundError(
+                f"CUSTOM_CIFAR10 CSV files not found:\n{train_csv}\n{test_csv}"
+            )
 
-        # File CSV relativi al file Python
-        #normalizza tra 0 ee 1
-        train_csv = os.path.join(base_path, "custom_train.csv")
-        test_csv = os.path.join(base_path, "custom_test.csv")
+        train_set = CustomFeatureDataset(
+            csv_file=str(train_csv),
+            normalize=True,
+            mode="train",
+        )
 
-        print(train_csv)
-        print(test_csv)
+        test_set = CustomFeatureDataset(
+            csv_file=str(test_csv),
+            normalize=True,
+            mode="test",
+            min_vals=train_set.min_vals,
+            max_vals=train_set.max_vals,
+        )
 
-        train_set = CustomFeatureDataset(train_csv, normalize = True)
-        test_set = CustomFeatureDataset(test_csv, normalize = True)
-
-        # dummy input a seconda della forma delle features
-        sample = pd.read_csv(train_csv).iloc[0, :-1].values
-        dummy_input = torch.tensor(sample, dtype=torch.float32).unsqueeze(0)
+        sample = pd.read_csv(train_csv).iloc[0, :-1].values.astype("float32")
+        dummy_input = torch.tensor(sample).unsqueeze(0)
         input_dim = sample.shape[0]
-        output_dim = 10  # assumendo 10 classi
+        output_dim = 10
 
     else:
         raise ValueError(f"Unsupported dataset: {dataset_name}")

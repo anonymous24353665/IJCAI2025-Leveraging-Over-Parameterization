@@ -1,7 +1,15 @@
-from torch import nn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import sys
+
+
+class DummyFile:
+    def write(self, x): pass
+
+    def flush(self): pass
+
+    def close(self): pass
 
 
 class CustomFCNN_Shallow(nn.Module):
@@ -45,13 +53,20 @@ class CustomFCNN_Shallow(nn.Module):
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, output_dim)
         """
-        x = self.flatten(x)
-        if x.dim() != 2 or x.size(1) != self.fc1.in_features:
-            raise ValueError(f"Expected input shape (batch_size, {self.fc1.in_features}), got {x.shape}")
+        # Reindirizza stderr per silenziare il TracerWarning
+        old_stderr = sys.stderr
+        sys.stderr = DummyFile()
+        try:
+            x = self.flatten(x)
+            if x.dim() != 2 or x.size(1) != self.fc1.in_features:
+                raise ValueError(f"Expected input shape (batch_size, {self.fc1.in_features}), got {x.shape}")
 
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.fc2(x)
+            x = self.fc1(x)
+            x = self.relu(x)
+            x = self.fc2(x)
+        finally:
+            # Ripristina stderr
+            sys.stderr = old_stderr
         return x
 
     def get_shape(self) -> tuple:
@@ -172,16 +187,27 @@ class CustomFCNN(nn.Module):
         self.hidden_layers = nn.Sequential(*layers)
         self.output_layer = nn.Linear(hidden_dim, output_dim)
 
+
     def forward(self, x):
-        x = self.flatten(x)
-        if x.dim() != 2 or x.size(1) != self.hidden_layers[0].in_features:
-            raise ValueError(
-                f"Expected input shape (batch_size, {self.hidden_layers[0].in_features}), got {x.shape}")
+        # Reindirizza stderr per silenziare il TracerWarning
+        old_stderr = sys.stderr
+        sys.stderr = DummyFile()
 
-        x = self.hidden_layers(x)
-        x = self.output_layer(x)
+        try:
+            x = self.flatten(x)
+            # mantiene la logica originale
+            if x.dim() != 2 or x.size(1) != self.hidden_layers[0].in_features:
+                raise ValueError(
+                    f"Expected input shape (batch_size, {self.hidden_layers[0].in_features}), got {x.shape}"
+                )
+
+            x = self.hidden_layers(x)
+            x = self.output_layer(x)
+        finally:
+            # Ripristina stderr
+            sys.stderr = old_stderr
+
         return x
-
     def get_shape(self) -> tuple:
         """
         Returns the shape of the network as (input_dim, num_layers, hidden_dim, output_dim).

@@ -17,8 +17,7 @@ def load_yaml_config(yaml_file_path):
             config = yaml.safe_load(file)
         return config
     except FileNotFoundError:
-        print(f"Errore: Il file {yaml_file_path} non è stato trovato.")
-        return None
+        raise Exception(f"Errore: Il file {yaml_file_path} non è stato trovato.")
     except yaml.YAMLError as exc:
         raise Exception(f"Errore nell'apertura del file YAML: {exc}")
 

@@ -7,10 +7,10 @@ from typing import Any, List, Tuple
 import torch
 from torch import nn, Tensor
 
-from Generators.ArchitecturesGenerator.one_rs_param.hyper_params_search import BinaryHyperParamsResearch
+from Generators.ArchitecturesGenerator.src.hyper_params_search import BinaryHyperParamsResearch
 from Generators.ArchitecturesGenerator.utils.nn_models import CustomFCNN_Shallow
-from Generators.ArchitecturesGenerator.one_rs_param.regularized_trainer import ModelTrainingManager
-from Generators.ArchitecturesGenerator.one_rs_param.config import load_config
+from Generators.ArchitecturesGenerator.src.regularized_trainer import ModelTrainingManager
+from Generators.ArchitecturesGenerator.src.config import load_config
 from Generators.ArchitecturesGenerator.utils.rs_loss_regularizer import calculate_rs_loss_regularizer_fc
 from Generators.ArchitecturesGenerator.utils.logger import setup_logger
 

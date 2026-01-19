@@ -17,7 +17,7 @@ from torch import Tensor
 from torch import optim
 from torch.nn import Module
 from torch.utils.data import DataLoader
-from Generators.ArchitecturesGenerator.one_rs_param import device
+from Generators.ArchitecturesGenerator.src import device
 
 
 
