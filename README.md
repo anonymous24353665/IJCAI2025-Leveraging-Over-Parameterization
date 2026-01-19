@@ -11,7 +11,7 @@ This repository provides:
 
 - Training scripts for different neural network architectures (SH, CV, CX, CF).  
 - Support for MNIST, Fashion-MNIST, and CIFAR datasets pre-filtered from a ResNet18.  
-- Ability to train networks under over-parameterization regime with or without regularization (`rs_loss`).  
+- Ability to train networks under over-parameterization regime with or without regularization (`rs_loss`) (BTP and NSP).  
 - Scripts to generate VNNLIB properties for local robustness verification.  
 
 All experiments can be run inside a **Docker container** to ensure reproducibility.
@@ -116,9 +116,13 @@ Properties are saved in `/app/Generators/PropertyGenerator/results`
 ---
 
 ## Data on Google Drive
-Given the significant computational time required to train all architectures, we provide the trained models used in the paper at the following link:
+iven the significant computational time required to train all architectures, we provide the trained models used in the paper at the following link:
 https://drive.google.com/drive/folders/1WwTIEEOz9FEcLgCcn9ST9UZV7Owb-9PU
 
+We also provide the CIFAR-10 dataset extracted using a pre-trained ResNet18 model, along with the ResNet18 model itself, used for the CIFAR-10 experiments.
+The dataset consists of two CSV files, which should be placed in
+datasets/CUSTOM_CIFAR10/.
+Training can then be performed by running train_CF.py.
 ## Notes
 
 - All scripts are configured to run inside the Docker container.  

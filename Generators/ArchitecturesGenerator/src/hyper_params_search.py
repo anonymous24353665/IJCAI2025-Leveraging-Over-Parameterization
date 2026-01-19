@@ -215,7 +215,12 @@ class BinaryHyperParamsResearch:
                 # Get best model for this architecture
                 model, model_ref, metrics = _get_min_index_and_value(best_models_dict[str(idx)])
 
-                # Update tracking metrics
+                if not self.rs_loss_bool:
+                    metrics['rs_train_loss'] = 0.0
+                    metrics['rs_test_loss'] = 0.0
+                    metrics['lambda'] = 0.0
+                    metrics['eps'] = 0.0
+
                 previous_accuracy = metrics['test_accuracy']
                 previous_unstable_nodes = metrics['test_unstable_nodes']
 
